@@ -1,7 +1,7 @@
 package main
 
 import (
-	// "encoding/json"
+	"encoding/json"
 	// "fmt"
 	"log"
 	"net/http"
@@ -20,6 +20,14 @@ var books []Book
 func main() {
 	router := mux.NewRouter()
 
+	books = append(books,
+		Book{ID: 1, Title: "Golang pointers", Author: "Mr. Golang", Year: "2010"},
+		Book{ID: 2, Title: "Golang routines", Author: "Mr. Goroutine", Year: "2011"},
+		Book{ID: 3, Title: "Golang routers", Author: "Mr. Router", Year: "2012"},
+		Book{ID: 4, Title: "Golang concurrency", Author: "Mr. Concurrency", Year: "2013"},
+		Book{ID: 5, Title: "Golang good parts", Author: "Mr. Good", Year: "2014"},
+	)
+
 	router.HandleFunc("/books", getBooks).Methods("GET")
 	router.HandleFunc("/book/{id}", getBook).Methods("GET")
 	router.HandleFunc("/books", addBook).Methods("POST")
@@ -31,6 +39,7 @@ func main() {
 
 func getBooks(w http.ResponseWriter, r *http.Request) {
 	log.Println("Gets all books")
+	json.NewEncoder(w).Encode(books)
 }
 
 func getBook(w http.ResponseWriter, r *http.Request) {
