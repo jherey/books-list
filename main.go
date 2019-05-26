@@ -1,11 +1,15 @@
 package main
 
 import (
+	"os"
 	"encoding/json"
 	"strconv"
 	"log"
 	"net/http"
+	"database/sql"
 	"github.com/gorilla/mux"
+	"github.com/lib/pq"
+	"github.com/subosito/gotenv"
 )
 
 type Book struct {
@@ -16,17 +20,31 @@ type Book struct {
 }
 
 var books []Book
+var db *sql.DB
+
+func init() {
+	gotenv.Load()
+}
+
+func logFatal(err error) {
+	if err != nil {
+		log.Fatal(err)
+	}
+}
 
 func main() {
-	router := mux.NewRouter()
+	pgURL, err := pq.ParseURL(os.Getenv("ELEPHANTSQL_URL"))
+	logFatal(err)
 
-	books = append(books,
-		Book{ID: 1, Title: "Golang pointers", Author: "Mr. Golang", Year: "2010"},
-		Book{ID: 2, Title: "Golang routines", Author: "Mr. Goroutine", Year: "2011"},
-		Book{ID: 3, Title: "Golang routers", Author: "Mr. Router", Year: "2012"},
-		Book{ID: 4, Title: "Golang concurrency", Author: "Mr. Concurrency", Year: "2013"},
-		Book{ID: 5, Title: "Golang good parts", Author: "Mr. Good", Year: "2014"},
-	)
+	db, err = sql.Open("postgres", pgURL)
+	logFatal(err)
+
+	err = db.Ping()
+	logFatal(err)
+
+	log.Println(pgURL)
+
+	router := mux.NewRouter()
 
 	router.HandleFunc("/books", getBooks).Methods("GET")
 	router.HandleFunc("/books/{id}", getBook).Methods("GET")
