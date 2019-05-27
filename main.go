@@ -76,16 +76,16 @@ func getBooks(w http.ResponseWriter, r *http.Request) {
 }
 
 func getBook(w http.ResponseWriter, r *http.Request) {
-	log.Println("Gets one book")
+	log.Println("Get one book")
+	var book Book
 	params := mux.Vars(r)
 
-	i, _ := strconv.Atoi(params["id"])
+	rows := db.QueryRow("select * from books where id=$1", params["id"])
 
-	for _, book := range books {
-		if book.ID == i {
-			json.NewEncoder(w).Encode(&book)
-		}
-	}
+	err := rows.Scan(&book.ID, &book.Title, &book.Author, &book.Year)
+	logFatal(err)
+
+	json.NewEncoder(w).Encode(book)
 }
 
 func addBook(w http.ResponseWriter, r *http.Request) {
