@@ -1,14 +1,13 @@
 package main
 
 import (
-	"os"
 	"encoding/json"
 	"log"
 	"net/http"
 	"database/sql"
 	"github.com/jherey/books-list/models"
+	"github.com/jherey/books-list/driver"
 	"github.com/gorilla/mux"
-	"github.com/lib/pq"
 	"github.com/subosito/gotenv"
 )
 
@@ -26,17 +25,7 @@ func logFatal(err error) {
 }
 
 func main() {
-	pgURL, err := pq.ParseURL(os.Getenv("ELEPHANTSQL_URL"))
-	logFatal(err)
-
-	db, err = sql.Open("postgres", pgURL)
-	logFatal(err)
-
-	err = db.Ping()
-	logFatal(err)
-
-	log.Println(pgURL)
-
+	db = driver.ConnectDB()
 	router := mux.NewRouter()
 
 	router.HandleFunc("/books", getBooks).Methods("GET")
