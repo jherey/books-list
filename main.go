@@ -4,11 +4,11 @@ import (
 	"log"
 	"net/http"
 	"database/sql"
+	"github.com/gorilla/mux"
+	"github.com/subosito/gotenv"
 	"github.com/jherey/books-list/models"
 	"github.com/jherey/books-list/driver"
 	"github.com/jherey/books-list/controllers"
-	"github.com/gorilla/mux"
-	"github.com/subosito/gotenv"
 )
 
 var books []models.Book
