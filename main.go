@@ -3,7 +3,6 @@ package main
 import (
 	"os"
 	"encoding/json"
-	"strconv"
 	"log"
 	"net/http"
 	"database/sql"
@@ -121,13 +120,12 @@ func updateBook(w http.ResponseWriter, r *http.Request) {
 func removeBook(w http.ResponseWriter, r *http.Request) {
 	log.Println("Removes a book")
 	params := mux.Vars(r)
-	id, _ := strconv.Atoi(params["id"])
 
-	for i, item := range books {
-		if item.ID == id {
-			books = append(books[:i], books[i+1:]...)
-		}
-	}
+	result, err := db.Exec("delete from books where id=$1", params["id"])
+	logFatal(err)
 
-	json.NewEncoder(w).Encode(books)
+	rowsDeleted, err := result.RowsAffected()
+	logFatal(err)
+
+	json.NewEncoder(w).Encode(rowsDeleted)
 }
